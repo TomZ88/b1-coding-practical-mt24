@@ -62,6 +62,23 @@ class Trajectory:
         plt.legend(loc='upper right')
         plt.show()
 
+# @dataclass
+# class Mission:
+#     reference: np.ndarray
+#     cave_height: np.ndarray
+#     cave_depth: np.ndarray
+
+#     @classmethod
+#     def random_mission(cls, duration: int, scale: float):
+#         (reference, cave_height, cave_depth) = generate_reference_and_limits(duration, scale)
+#         return cls(reference, cave_height, cave_depth)
+
+#     @classmethod
+#     def from_csv(cls, file_name: str):
+#         # You are required to implement this method
+        
+#         pass
+
 @dataclass
 class Mission:
     reference: np.ndarray
@@ -75,9 +92,23 @@ class Mission:
 
     @classmethod
     def from_csv(cls, file_name: str):
-        # You are required to implement this method
-        pass
+        """
+        Create a Mission instance by loading data from a CSV file.
+        Expects columns: reference, cave_height, cave_depth
+        """
+        import pandas as pd
 
+        df = pd.read_csv(file_name)
+        required = {"reference", "cave_height", "cave_depth"}
+        if not required.issubset(df.columns):
+            missing = required - set(df.columns)
+            raise ValueError(f"mission CSV missing columns: {missing}")
+
+        reference = df["reference"].to_numpy(dtype=float)
+        cave_height = df["cave_height"].to_numpy(dtype=float)
+        cave_depth = df["cave_depth"].to_numpy(dtype=float)
+
+        return cls(reference, cave_height, cave_depth)
 
 class ClosedLoop:
     def __init__(self, plant: Submarine, controller):
